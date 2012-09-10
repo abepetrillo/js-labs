@@ -18,9 +18,13 @@ describe('namespace',function(){
       expect(App.house.door_number).toBe(4);
     });
     it('should handle the specification of "App" within the namespace',function(){
-      App.extend('App.someNamespace',function(){
-        expect(App.someNamespace).toBeDefined();
-      });
+      App.extend('App.someNamespace');
+      expect('App.somenamespace').toBeDefined();
     });
+    it('should define multiple children', function(){
+      var myHandle = App.extend('App.house.door.handle');
+      expect(myHandle).toBeDefined();
+      expect(myHandle).not.toBeNull();
+    })
   });
 })
