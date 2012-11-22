@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="dyno.css">
+
+		<script type="text/javascript" src="../lib/namespace.js"></script>
+		<script type="text/javascript" src="jquery.1.8.3.js"></script>
+		<script type="text/javascript" src="dynamic_boxes.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){App.dynoBox().iterate()});
+		</script>
+	</head>
+	<body>
+		<form method="GET" action="">
+			<input name="min-height" />
+			<input name="max-width" />
+			<input type="button" value="Submit" />
+		</form>
+		<div id="container">
+			<div class="column"></div>
+		</div>
+	</body>
+</html>

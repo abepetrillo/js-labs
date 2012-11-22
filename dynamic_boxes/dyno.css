@@ -1,0 +1,23 @@
+html * {
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	width: 100%;
+}
+
+body #container {
+	width: 100%;
+}
+
+body #container .column {
+	width: 30%;
+	background-color: grey;
+	height: 100%;
+	float: left;
+}
+
+body #container .column .box {
+	height: 40px;
+}
