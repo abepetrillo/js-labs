@@ -7,7 +7,12 @@
 		<script type="text/javascript" src="jquery.1.8.3.js"></script>
 		<script type="text/javascript" src="dynamic_boxes.js"></script>
 		<script type="text/javascript">
-			$(document).ready(function(){App.dynoBox().iterate()});
+			$(document).ready(function(){
+				var d = App.dynoBox(3,3,14);
+				$('input[type="button"]').click(function(){
+					d.addBox();
+				});
+			});
 		</script>
 	</head>
 	<body>
@@ -17,7 +22,6 @@
 			<input type="button" value="Submit" />
 		</form>
 		<div id="container">
-			<div class="column"></div>
 		</div>
 	</body>
 </html>

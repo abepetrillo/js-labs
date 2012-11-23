@@ -8,9 +8,28 @@ App.dynoBox = function(minHeight, maxWidth, totalBoxes){
 	var _boxCount = 0
 
 	var _setBoxCount = function(count){
-		_boxCount = count || _boxCount
-		console.log("setBoxCount", _boxCount)
+		_boxCount = count || _boxCount;
 		return _boxCount;
+	}
+
+	var _addColumn = function(container){
+		var col = $("<div></div>").addClass('column');
+		col.appendTo(container);
+		return container;
+	}
+
+	var _generateColumns = function(container){
+		container = $(container);
+		container.find('.column').remove();
+		for(var i=0;i<_noOfColumns();i++){
+			_addColumn(container);	
+		}
+		return container;
+	}
+
+	var _generateBoxes = function(container){
+		//find where the last box is
+		var currentCol = container.find('.box:last');
 	}
 
 	var _noOfColumns = function(){
@@ -29,8 +48,6 @@ App.dynoBox = function(minHeight, maxWidth, totalBoxes){
 		if(cols > maxWidth){
 			cols = maxWidth;
 		}
-
-		console.log("cols:", cols, "for: " + _boxCount)
 		return cols;
 	}
 
@@ -42,9 +59,12 @@ App.dynoBox = function(minHeight, maxWidth, totalBoxes){
 		boxCount : function(setCount){
 			return _setBoxCount(setCount);
 		},
-		iterate : function(){
+		addBox : function(){
 			//add a box to the screen
-			
+			_setBoxCount(_setBoxCount()+1);
+			_generateColumns($('#container'));
+			_generateBoxes();
+			console.log("cols:" + _noOfColumns(), "boxes:" + _boxCount)
 		}
 	}
 
