@@ -8,14 +8,15 @@ App.dynoBox = function(minHeight, maxWidth){
 	var _boxCount = 0
 
 	var Column = function(column){
-		var _column = column
+		var _column = $(column)
 
 		var _boxes = function(){
-			return _column.find('.box');
+			return $(_column).find('.box');
 		}
 
 		return {
 			boxes : _boxes(),
+			actual : _column,
 			addBox : function(content){
 				$('<div>'+content+'</div>').addClass('box').appendTo(_column);
 			},
@@ -28,6 +29,14 @@ App.dynoBox = function(minHeight, maxWidth){
 				}
 				else{
 					return null;
+				}
+			},
+			nextColumn : function(){
+				if(typeof _column.next() != 'undefined' && _column.next().length > 0){
+					return new Column(_column.next());
+				}
+				else {
+					return new Column(_column.parent().find('.column:first'))
 				}
 			}
 		}
@@ -45,7 +54,7 @@ App.dynoBox = function(minHeight, maxWidth){
 			if(col.length < 1){
 				col = cont.find('.column:last')
 				if(col.length < 1){
-					_addColumn(cont)
+					_addColumn(cont);
 				}
 			}
 			return new Column(col);
@@ -71,28 +80,41 @@ App.dynoBox = function(minHeight, maxWidth){
 				var col = _currentColumn(_container);
 				var noOfBoxes = _boxes().length
 				var mod = (noOfBoxes+1) % minHeight;
-				if(_noOfColumns(_container) < maxWidth){
+
 					//if the new column isn't going to fall too far behind
-					if( mod == 0 && noOfBoxes > minHeight){
-						//we need to take minHeight - 1 boxes from the list
-						for(var i=0;i<(minHeight-1);i++){
-							col.removeBox();
-							if(col.prevColumn() != null){
-								col = col.prevColumn();
+					if( mod == 0 && noOfBoxes > minHeight){		
+						//shove the last to boxes over to the new column
+						var lastTwoBoxes = _container.find('.column:last').find('.box:last').prev().andSelf();
+						var newCol = _addColumn(_container);
+						console.log(lastTwoBoxes)
+						lastTwoBoxes.clone().appendTo(newCol.actual);
+						lastTwoBoxes.remove();
+
+						//boxes that are too many have to go to the next column
+						_container.find('.column').each(function(index, column){
+							column = new Column(column)
+							if(column.boxes.length > minHeight){
+								//take the last one and put it on the next column
+								column.nextColumn().boxes.first().before(column.boxes.last());
 							}
-						}
-						col = _addColumn(_container);
-						col.addBox(_content());
-						col.addBox(_content());
+						})
+
+						col = newCol
 					}
+
+				if(mod == 1 && (_noOfColumns(_container) > 1)){
+					//buttons need re-ordering
+
+					var lastCol = new Column(_container.find('.column:last'));
+
+					for(var i=1; i < (_container.find('.column').length); i++){
+						lastCol.boxes.first().appendTo(lastCol.prevColumn().actual);
+						lastCol = lastCol.prevColumn();
+					}
+
 				}
 
-				if(mod == 1){
-					if(col.prevColumn() != null){ col.prevColumn().addBox(_content()); } else { col.addBox(_content());	}
-				}
-				else{
-					col.addBox(_content());
-				}	
+				col.addBox(_content());
 			}
 		}
 	}
