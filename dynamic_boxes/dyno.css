@@ -16,6 +16,7 @@ body #container .column {
 	background-color: grey;
 	height: 100%;
 	float: left;
+	border-color: blue;
 }
 
 body #container .column .box {

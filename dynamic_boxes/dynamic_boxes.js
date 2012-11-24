@@ -1,70 +1,106 @@
 App.extend('App.dynoBox');
 
-App.dynoBox = function(minHeight, maxWidth, totalBoxes){
+App.dynoBox = function(minHeight, maxWidth){
 
 	var minHeight = minHeight || 3
 	var maxWidth = maxWidth || 3
 	var totalBoxes = totalBoxes || 14
 	var _boxCount = 0
 
-	var _setBoxCount = function(count){
-		_boxCount = count || _boxCount;
-		return _boxCount;
-	}
+	var Column = function(column){
+		var _column = column
 
-	var _addColumn = function(container){
-		var col = $("<div></div>").addClass('column');
-		col.appendTo(container);
-		return container;
-	}
-
-	var _generateColumns = function(container){
-		container = $(container);
-		container.find('.column').remove();
-		for(var i=0;i<_noOfColumns();i++){
-			_addColumn(container);	
-		}
-		return container;
-	}
-
-	var _generateBoxes = function(container){
-		//find where the last box is
-		var currentCol = container.find('.box:last');
-	}
-
-	var _noOfColumns = function(){
-		var cols = parseInt(_boxCount / minHeight, 10);
-
-		if(cols < 1){ cols = 1; }
-		//check whether there are a valid number of boxes for the next row
-		var mod = _boxCount % minHeight
-		if( (minHeight - mod) > 1 || (mod == 0) || (cols == 1)) {
-			cols = cols
-		}
-		else {
-			cols = cols + 1
+		var _boxes = function(){
+			return _column.find('.box');
 		}
 
-		if(cols > maxWidth){
-			cols = maxWidth;
+		return {
+			boxes : _boxes(),
+			addBox : function(content){
+				$('<div>'+content+'</div>').addClass('box').appendTo(_column);
+			},
+			removeBox : function(){
+				_column.find('.box:last').remove();
+			},
+			prevColumn : function(){
+				if(typeof _column.prev() != 'undefined' && _column.prev().length > 0){
+					return new Column(_column.prev())
+				}
+				else{
+					return null;
+				}
+			}
 		}
-		return cols;
+	}
+
+	var Container = function(container){
+		var _container = container;
+
+		var _noOfColumns = function(cont){
+			return cont.find('.column').length
+		}
+
+		var _currentColumn = function(cont){
+			var col = cont.find('.column').find('.box').last().parent();
+			if(col.length < 1){
+				col = cont.find('.column:last')
+				if(col.length < 1){
+					_addColumn(cont)
+				}
+			}
+			return new Column(col);
+		}
+
+		var _addColumn = function(cont){
+			var col = $('<div class="column"></div>')
+			col.appendTo(cont);
+			return new Column(col);
+		}
+
+		var _boxes = function(){
+			return _container.find('.box');
+		}
+
+		var _content = function(){
+			return _boxes().length+1;
+		}
+
+		return {
+			addBox : function(){
+				//get the current column
+				var col = _currentColumn(_container);
+				var noOfBoxes = _boxes().length
+				var mod = (noOfBoxes+1) % minHeight;
+				if(_noOfColumns(_container) < maxWidth){
+					//if the new column isn't going to fall too far behind
+					if( mod == 0 && noOfBoxes > minHeight){
+						//we need to take minHeight - 1 boxes from the list
+						for(var i=0;i<(minHeight-1);i++){
+							col.removeBox();
+							if(col.prevColumn() != null){
+								col = col.prevColumn();
+							}
+						}
+						col = _addColumn(_container);
+						col.addBox(_content());
+						col.addBox(_content());
+					}
+				}
+
+				if(mod == 1){
+					if(col.prevColumn() != null){ col.prevColumn().addBox(_content()); } else { col.addBox(_content());	}
+				}
+				else{
+					col.addBox(_content());
+				}	
+			}
+		}
 	}
 
 	return {
-		minHeight : minHeight,
-		maxWidth : maxWidth,
-		totalColumns : function(){return _noOfColumns()},
-		totalBoxes : totalBoxes,
-		boxCount : function(setCount){
-			return _setBoxCount(setCount);
-		},
 		addBox : function(){
-			//add a box to the screen
-			_setBoxCount(_setBoxCount()+1);
-			_generateColumns($('#container'));
-			_generateBoxes();
-			console.log("cols:" + _noOfColumns(), "boxes:" + _boxCount)
+			c = Container($('#container'));
+			c.addBox();
 		}
 	}
 
