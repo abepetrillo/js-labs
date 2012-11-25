@@ -1,128 +1,160 @@
 App.extend('App.dynoBox');
 
 App.dynoBox = function(minHeight, maxWidth){
-
+	var _container = $('#container');
 	var minHeight = minHeight || 3
 	var maxWidth = maxWidth || 3
-	var totalBoxes = totalBoxes || 14
-	var _boxCount = 0
 
-	var Column = function(column){
-		var _column = $(column)
-
-		var _boxes = function(){
-			return $(_column).find('.box');
-		}
-
-		return {
-			boxes : _boxes(),
-			actual : _column,
-			addBox : function(content){
-				$('<div>'+content+'</div>').addClass('box').appendTo(_column);
-			},
-			removeBox : function(){
-				_column.find('.box:last').remove();
-			},
-			prevColumn : function(){
-				if(typeof _column.prev() != 'undefined' && _column.prev().length > 0){
-					return new Column(_column.prev())
-				}
-				else{
-					return null;
-				}
-			},
-			nextColumn : function(){
-				if(typeof _column.next() != 'undefined' && _column.next().length > 0){
-					return new Column(_column.next());
-				}
-				else {
-					return new Column(_column.parent().find('.column:first'))
-				}
-			}
-		}
+	//create the columns
+	for(var i=0;i<maxWidth;i++){
+		$('<div class="column" index="'+i+'"></div>').appendTo(_container);
 	}
 
-	var Container = function(container){
-		var _container = container;
+	var Column = function(column){
 
-		var _noOfColumns = function(cont){
-			return cont.find('.column').length
+		var self = this;
+
+		this.boxes = function(){
+			return column.find('.box')
 		}
 
-		var _currentColumn = function(cont){
-			var col = cont.find('.column').find('.box').last().parent();
-			if(col.length < 1){
-				col = cont.find('.column:last')
-				if(col.length < 1){
-					_addColumn(cont);
-				}
+		this.boxCount = function(){
+			return self.boxes().length
+		}
+
+
+		this.prevColumn = function(){
+			var p = $(column).prev('.column');
+			var col;
+			if(p.length < 1){
+				col = null
 			}
-			return new Column(col);
+			else{
+				col = new Column(p);
+			}
+
+			return col;
 		}
 
-		var _addColumn = function(cont){
-			var col = $('<div class="column"></div>')
-			col.appendTo(cont);
-			return new Column(col);
+		this.nextColumn = function(){
+			var n = $(column).next('.column');
+			var col;
+			if(n.length < 1){
+				col = null
+			}
+			else{
+				col = new Column(n);
+			}
+
+			return col;
 		}
 
-		var _boxes = function(){
-			return _container.find('.box');
+		this.belowMinHeight = function(){
+			return self.boxes().length < minHeight; 
 		}
 
-		var _content = function(){
-			return _boxes().length+1;
-		}
-
-		return {
-			addBox : function(){
-				//get the current column
-				var col = _currentColumn(_container);
-				var noOfBoxes = _boxes().length
-				var mod = (noOfBoxes+1) % minHeight;
-
-					//if the new column isn't going to fall too far behind
-					if( mod == 0 && noOfBoxes > minHeight){		
-						//shove the last to boxes over to the new column
-						var lastTwoBoxes = _container.find('.column:last').find('.box:last').prev().andSelf();
-						var newCol = _addColumn(_container);
-						console.log(lastTwoBoxes)
-						lastTwoBoxes.clone().appendTo(newCol.actual);
-						lastTwoBoxes.remove();
-
-						//boxes that are too many have to go to the next column
-						_container.find('.column').each(function(index, column){
-							column = new Column(column)
-							if(column.boxes.length > minHeight){
-								//take the last one and put it on the next column
-								column.nextColumn().boxes.first().before(column.boxes.last());
-							}
-						})
-
-						col = newCol
-					}
-
-				if(mod == 1 && (_noOfColumns(_container) > 1)){
-					//buttons need re-ordering
-
-					var lastCol = new Column(_container.find('.column:last'));
-
-					for(var i=1; i < (_container.find('.column').length); i++){
-						lastCol.boxes.first().appendTo(lastCol.prevColumn().actual);
-						lastCol = lastCol.prevColumn();
-					}
-
-				}
-
-				col.addBox(_content());
+		this.boxDifference = function(){
+			if(self.nextColumn != null){
+				return (self.boxes().length - self.nextColumn().boxes().length)	
+			}
+			else {
+				return 0;
 			}
 		}
+			
+
+		this.addBox = function(box){
+			box = box || $('<div class="box">'+ (_container.find('.box').length+1) +'</div>')
+			
+
+			switch((((_totalBoxes()+1) % maxWidth) ==0 ) && (_totalBoxes() > minHeight)){
+				case true:
+					var colWidth = (_totalBoxes()+1) / maxWidth,
+							colHeight;
+					if(colWidth > maxWidth){
+						colWidth = maxWidth
+					}
+					colHeight = (_totalBoxes()+1) / colWidth
+					var nextCol = new Column(_container.find('.column:first'))
+					$(box).appendTo($('.column:nth-child('+colWidth+')'));
+					while(nextCol != null){
+						while(nextCol.boxCount() > colHeight){
+							console.log(nextCol.index(), colHeight, nextCol.boxCount(), colWidth)
+							nextCol.pushBox();
+						}
+
+						nextCol = nextCol.nextColumn()
+					}
+					break;
+				default:
+					$(box).appendTo(column);
+					var prevCol = self.prevColumn();
+					while(prevCol != null){
+
+						if(prevCol.belowMinHeight()){
+							prevCol.pullBox();
+						}
+
+						if(prevCol.boxDifference() > 1 && prevCol.boxDifference() <= minHeight){
+							prevCol.pullBox();
+						}
+
+						if(prevCol.boxCount() < prevCol.nextColumn().boxCount()){
+							prevCol.pullBox();
+						}
+
+						prevCol = prevCol.prevColumn()
+					}
+			}
+		
+			return box;
+		}
+
+
+		this.pullBox = function(){
+			var box = column.next('.column').find('.box').first();
+			$(box).appendTo(column)
+		}
+
+		this.pushBox = function(){
+			var box = column.find('.box').last();
+			$(column.next('.column')).prepend(box);
+		}
+
+		this.index = function(){
+			return column.attr('index');
+		}
+
+		return self
+	}
+
+	var lastColumn = function(){
+		return _container.find('.column:last');
+	}
+
+	var _allBoxes = function(){
+		return _container.find('.box');
+	}
+
+	var _totalBoxes = function(){
+		return _container.find('.box').length
 	}
 
 	return {
 		addBox : function(){
-			c = Container($('#container'));
-			c.addBox();
+			lc = new Column(lastColumn());
+			b = $('#container').find('.box')
+			$('#container').find('.box').remove();
+			if(b.length >= 1){
+				b.each(function(ind, box){
+					lc.addBox(box);
+				});
+				lc.addBox()
+			}
+			else{
+				lc.addBox();
+			}
+			
 		}
 	}
 
