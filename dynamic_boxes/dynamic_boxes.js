@@ -3,7 +3,8 @@ App.extend('App.dynoBox');
 App.dynoBox = function (minHeight, maxWidth) {
 	var _container = $('#container'),
 			self = this,
-			i = 0;
+			i = 0,
+			colCssWidth;
 
 	minHeight = minHeight || 3;
 	maxWidth = maxWidth || 3;
@@ -15,6 +16,9 @@ App.dynoBox = function (minHeight, maxWidth) {
 	for(i = 0; i < maxWidth; i++) {
 		$('<div class="column" index="' + i + '"></div>').appendTo(_container);
 	}
+	//Could use CSS3 to style this, but won't work in some browsers so resorting to Javascript
+	colCssWidth = parseInt(90 / maxWidth, 10);
+	_container.find('.column').css('width', colCssWidth+"%")
 
 	var Column = function (column) {
 
@@ -99,7 +103,7 @@ App.dynoBox = function (minHeight, maxWidth) {
 							prevCol.pullBox();
 						}
 
-						if(prevCol.boxDifference() > 1 && prevCol.boxDifference() <= minHeight) {
+						if(prevCol.boxDifference() > 1 ) {
 							prevCol.pullBox();
 						}
 
