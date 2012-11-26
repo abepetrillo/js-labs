@@ -16,6 +16,7 @@ App.dynoBox = function (minHeight, maxWidth) {
 	for(i = 0; i < maxWidth; i++) {
 		$('<div class="column" index="' + i + '"></div>').appendTo(_container);
 	}
+
 	//Could use CSS3 to style this, but won't work in some browsers so resorting to Javascript
 	colCssWidth = parseInt(90 / maxWidth, 10);
 	_container.find('.column').css('width', colCssWidth+"%")
@@ -164,9 +165,6 @@ App.dynoBox = function (minHeight, maxWidth) {
 	}
 
 	return {
-		setTimer: function () {
-			self.timer = 3000;
-		},
 		reset: function () {
 			_container.find('.box').remove();
 		},
@@ -178,6 +176,9 @@ App.dynoBox = function (minHeight, maxWidth) {
 		},
 		addBox : function () {
 			return increment();
+		},
+		removeBox : function () {
+			_container.find('.box:last').remove();
 		}
 	}
 

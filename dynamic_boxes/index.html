@@ -32,6 +32,9 @@
 				$('input[name="max-width"]').val(params["max-width"])
 
 				var d = App.dynoBox(parseInt(params["min-height"], 10), parseInt(params["max-width"],10));
+				$('.btn.removeBox').click(function(){
+					d.removeBox();
+				});
 				$('.btn.addBox').click(function(){
 					d.addBox();
 				});
@@ -56,9 +59,12 @@
 		<div class="clr"></div>
 		<form class="controls">
 			<ul class="controls">
-				<li class="btn btn-primary reset"><i class="icon-refresh"></i> Reset</li>
+				<li class="btn btn-info reset"><i class="icon-refresh"></i> Reset</li>
 				<li class="btn btn-danger stop"><i class="icon-stop" ></i> Stop </li>
 				<li class="btn btn-success play"><i class="icon-play"></i> Play</li>
+			</ul>
+			<ul class="controls">
+				<li class="btn btn-danger removeBox"><i class="icon-minus-sign"></i> Remove Box</li>
 				<li class="btn btn-primary addBox"><i class="icon-plus-sign"></i> Add Box</li>
 			</ul>
 		</form>
