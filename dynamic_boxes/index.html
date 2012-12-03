@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>DynoBox</title>
+		<link rel="stylesheet" type="text/css" href="dyno.css">
+
+		<script type="text/javascript" src="../lib/namespace.js"></script>
+		<script type="text/javascript" src="jquery.1.8.3.js"></script>
+		<script type="text/javascript" src="dynamic_boxes.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				var getParams = function(){
+					var url_string = window.location.search.substr(1),
+							params = {},
+							paramsArr = url_string.split("&");
+
+					for ( var i = 0; i < paramsArr.length; i++) {
+				    var tmparr = paramsArr[i].split("=");
+				    params[tmparr[0]] = tmparr[1];
+					}
+
+					return params;
+				}
+
+				//values from get request via URL
+				var params = getParams()
+				params["min-height"] = params["min-height"] || 3;
+				params["max-width"] = params["max-width"] || 3;
+
+				//pre-load inputs with data from params
+				$('input[name="min-height"]').val(params["min-height"])
+				$('input[name="max-width"]').val(params["max-width"])
+
+				var d = App.dynoBox(parseInt(params["min-height"], 10), parseInt(params["max-width"],10));
+				$('.btn.removeBox').click(function(){
+					d.removeBox();
+				});
+				$('.btn.addBox').click(function(){
+					d.addBox();
+				});
+				$('.btn.play').click(function(){
+					d.autoPlay();
+				});
+				$('.btn.stop').click(function(){
+					d.stopPlay();
+				});
+				$('.btn.reset').click(function(){
+					d.reset();
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<form method="GET" action="#">
+			<input name="min-height" placeholder="Enter a min height..." />
+			<input name="max-width" placeholder="Enter a max width..." />
+			<input type="submit" value="DynoBox!"/>
+		</form>
+		<div class="clr"></div>
+		<form class="controls">
+			<ul class="controls">
+				<li class="btn btn-info reset"><i class="icon-refresh"></i> Reset</li>
+				<li class="btn btn-danger stop"><i class="icon-stop" ></i> Stop </li>
+				<li class="btn btn-success play"><i class="icon-play"></i> Play</li>
+			</ul>
+			<ul class="controls">
+				<li class="btn btn-danger removeBox"><i class="icon-minus-sign"></i> Remove Box</li>
+				<li class="btn btn-primary addBox"><i class="icon-plus-sign"></i> Add Box</li>
+			</ul>
+		</form>
+		<div class="clr"></div>
+		<div id="container">
+		</div>
+	</body>
+</html>

@@ -11,9 +11,11 @@
 
   <!-- include source files here... -->
   <script type="text/javascript" src="lib/namespace.js"></script>
-
+  <script type="text/javascript" src="dynamic_boxes/jquery.1.8.3.js"></script>
+  <script type="text/javascript" src="dynamic_boxes/dynamic_boxes.js"></script>
   <!-- include spec files here... -->
   <script type="text/javascript" src="spec/namespace_spec.js"></script>
+  <script type="text/javascript" src="spec/dynamic_boxes_spec.js"></script>
 
 
   <script type="text/javascript">
@@ -35,12 +37,8 @@
         if (currentWindowOnload) {
           currentWindowOnload();
         }
-        execJasmine();
-      };
-
-      function execJasmine() {
         jasmineEnv.execute();
-      }
+      };
 
     })();
   </script>
@@ -48,5 +46,6 @@
 </head>
 
 <body>
+  <div id="container"></div>
 </body>
 </html>
